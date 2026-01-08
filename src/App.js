@@ -1,7 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Search, AlertTriangle, Building2, DollarSign, Users, MapPin, ExternalLink, Filter, ChevronDown, ChevronRight, Info } from 'lucide-react';
+import { Search, AlertTriangle, Building2, DollarSign, Users, MapPin, ExternalLink, Filter, ChevronDown, ChevronRight, Info, ArrowLeft } from 'lucide-react';
 import './App.css';
+
+// Import state configurations
+import { getState, getAllStates } from './states';
+import StateSelector from './components/StateSelector';
 
 // California counties with population data for context
 const CALIFORNIA_COUNTIES = [
@@ -157,17 +161,22 @@ const getCountyDataStatus = (countyName) => {
 };
 
 function App() {
+  const [selectedState, setSelectedState] = useState(null);
   const [selectedCounty, setSelectedCounty] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [facilitySearch, setFacilitySearch] = useState("");
   const [showFlagged, setShowFlagged] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
+  // Get current state data if a state is selected
+  const stateData = selectedState ? getState(selectedState) : null;
+  const currentCounties = stateData ? stateData.counties : CALIFORNIA_COUNTIES;
+
   const filteredCounties = useMemo(() => {
-    return CALIFORNIA_COUNTIES.filter(county =>
+    return currentCounties.filter(county =>
       county.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [searchTerm, currentCounties]);
 
   const filteredFacilities = useMemo(() => {
     let facilities = SAMPLE_FACILITIES;
@@ -183,7 +192,12 @@ function App() {
     return facilities;
   }, [facilitySearch, showFlagged]);
 
-  const countyStatus = selectedCounty ? getCountyDataStatus(selectedCounty.name) : null;
+  // Use state-specific data status function, or fallback to California's
+  const countyStatus = selectedCounty && stateData
+    ? stateData.getDataStatus(selectedCounty.name)
+    : selectedCounty
+      ? getCountyDataStatus(selectedCounty.name)
+      : null;
 
   // Summary stats
   const totalCapacity = SAMPLE_FACILITIES.reduce((sum, f) => sum + f.capacity, 0);
@@ -199,8 +213,8 @@ function App() {
               <Building2 size={28} />
             </div>
             <div className="logo-text">
-              <h1>CalChildWatch</h1>
-              <span className="tagline">California Childcare Transparency Project</span>
+              <h1>DaycareWatch</h1>
+              <span className="tagline">National Childcare Subsidy Transparency</span>
             </div>
           </div>
           <nav className="nav">
@@ -213,39 +227,72 @@ function App() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section - shown when no county is selected */}
       {!selectedCounty && (
         <section className="hero">
           <div className="hero-content">
-            <h2>Where do California's childcare subsidies actually go?</h2>
+            <h2>Where do childcare subsidies actually go?</h2>
             <p>
-              An open-source investigation cross-referencing public licensing data 
-              with subsidy payments across all 58 California counties.
+              An open-source investigation cross-referencing public licensing data
+              with subsidy payments across multiple states.
             </p>
-            <div className="hero-stats">
-              <div className="stat-card">
-                <span className="stat-number">58</span>
-                <span className="stat-label">Counties</span>
+            {stateData ? (
+              <div className="hero-stats">
+                <div className="stat-card">
+                  <span className="stat-number">{stateData.config.stats.totalCounties}</span>
+                  <span className="stat-label">Counties</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-number">{stateData.config.stats.annualSubsidies}</span>
+                  <span className="stat-label">Annual Subsidies</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-number">{stateData.config.stats.pilotCounty}</span>
+                  <span className="stat-label">Pilot County</span>
+                </div>
               </div>
-              <div className="stat-card">
-                <span className="stat-number">$1B+</span>
-                <span className="stat-label">Annual Subsidies</span>
+            ) : (
+              <div className="hero-stats">
+                <div className="stat-card">
+                  <span className="stat-number">2</span>
+                  <span className="stat-label">States</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-number">145</span>
+                  <span className="stat-label">Counties</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-number">$1.3B+</span>
+                  <span className="stat-label">Annual Subsidies</span>
+                </div>
               </div>
-              <div className="stat-card">
-                <span className="stat-number">1</span>
-                <span className="stat-label">Pilot County Active</span>
-              </div>
-            </div>
+            )}
           </div>
         </section>
       )}
 
       <main className="main">
-        {/* County Selection View */}
-        {!selectedCounty ? (
+        {/* State Selection View - shown when no state is selected */}
+        {!selectedState ? (
+          <StateSelector
+            states={getAllStates()}
+            onSelectState={setSelectedState}
+          />
+        ) : !selectedCounty ? (
+          /* County Selection View - shown when state selected but no county */
           <section className="county-section">
+            <button
+              className="back-button"
+              onClick={() => {
+                setSelectedState(null);
+                setSearchTerm('');
+              }}
+            >
+              <ArrowLeft size={16} /> Back to States
+            </button>
+
             <div className="section-header">
-              <h3>Select a County</h3>
+              <h3>Select a County in {stateData.config.name}</h3>
               <div className="search-box">
                 <Search size={18} />
                 <input
@@ -259,7 +306,7 @@ function App() {
 
             <div className="county-grid">
               {filteredCounties.map(county => {
-                const status = getCountyDataStatus(county.name);
+                const status = stateData.getDataStatus(county.name);
                 return (
                   <button
                     key={county.name}
@@ -322,12 +369,12 @@ function App() {
           /* County Detail View */
           <section className="county-detail">
             <button className="back-button" onClick={() => setSelectedCounty(null)}>
-              ← Back to Counties
+              <ArrowLeft size={16} /> Back to {stateData.config.name} Counties
             </button>
 
             <div className="county-header">
               <div className="county-title">
-                <h2>{selectedCounty.name} County</h2>
+                <h2>{selectedCounty.name} County, {stateData.config.abbreviation}</h2>
                 <span className="county-population">
                   Population: {selectedCounty.population.toLocaleString()}
                 </span>
@@ -339,7 +386,7 @@ function App() {
                 </div>
                 <div className={`status-badge ${countyStatus.subsidyData ? 'active' : 'pending'}`}>
                   <span className="badge-dot"></span>
-                  Subsidy Data: {countyStatus.subsidyData ? 'Available' : 'CPRA Pending'}
+                  Subsidy Data: {countyStatus.subsidyData ? 'Available' : `${stateData.config.publicRecordsLaw.shortName} Pending`}
                 </div>
               </div>
             </div>
@@ -587,10 +634,10 @@ function App() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-section">
-            <h4>CalChildWatch</h4>
+            <h4>DaycareWatch</h4>
             <p>
-              An open-source project bringing transparency to California's 
-              childcare subsidy system through public records.
+              An open-source project bringing transparency to childcare
+              subsidy systems through public records.
             </p>
           </div>
           <div className="footer-section">

@@ -1,4 +1,4 @@
-# CalChildWatch - Deploy to Vercel
+# DaycareWatch - Deploy to Vercel
 # Triggers on push to main branch
 
 name: Deploy to Vercel

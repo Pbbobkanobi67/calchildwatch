@@ -74,3 +74,8 @@ secrets/
 *.pem
 *.key
 credentials.json
+
+# API keys and tokens
+API.txt
+*.api
+nul

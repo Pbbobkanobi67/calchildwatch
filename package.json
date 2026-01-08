@@ -1,6 +1,7 @@
 {
-  "name": "calchildwatch",
-  "version": "0.1.0",
+  "name": "daycarewatch",
+  "version": "0.2.0",
+  "description": "National Childcare Subsidy Transparency Platform",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",

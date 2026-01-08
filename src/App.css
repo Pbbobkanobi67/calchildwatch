@@ -908,8 +908,162 @@ tr.flagged-row:hover {
   .facilities-table {
     overflow-x: auto;
   }
-  
+
   table {
     min-width: 700px;
   }
+}
+
+/* ===== State Selector Styles ===== */
+.state-selector {
+  padding: 2rem 0;
+}
+
+.state-selector-intro {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.intro-text {
+  font-size: 1.1rem;
+  color: var(--navy-700);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.state-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.state-card {
+  background: white;
+  border: 2px solid var(--navy-200);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.state-card:hover {
+  border-color: var(--state-color, var(--navy-600));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.state-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.state-icon {
+  color: var(--state-color, var(--navy-600));
+}
+
+.state-abbrev {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--navy-500);
+  background: var(--navy-100);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.state-card-body {
+  flex: 1;
+}
+
+.state-card .state-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--navy-900);
+  margin: 0 0 0.25rem 0;
+}
+
+.state-tagline {
+  color: var(--navy-600);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.state-card-stats {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--navy-100);
+  border-bottom: 1px solid var(--navy-100);
+}
+
+.state-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.state-stat .stat-number {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.state-stat .stat-label {
+  font-size: 0.75rem;
+  color: var(--navy-500);
+  text-transform: uppercase;
+}
+
+.state-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pilot-badge {
+  font-size: 0.8rem;
+  color: var(--green-700);
+  background: var(--green-100);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+}
+
+.state-card-footer .chevron {
+  color: var(--navy-400);
+  transition: transform 0.2s ease;
+}
+
+.state-card:hover .chevron {
+  transform: translateX(4px);
+  color: var(--state-color, var(--navy-600));
+}
+
+.coming-soon {
+  text-align: center;
+  padding: 2rem;
+  background: var(--navy-50);
+  border-radius: 8px;
+}
+
+.coming-soon h4 {
+  color: var(--navy-700);
+  margin: 0 0 0.5rem 0;
+}
+
+.coming-soon p {
+  color: var(--navy-600);
+  margin: 0;
+}
+
+.coming-soon a {
+  color: var(--blue-600);
+  text-decoration: underline;
+}
+
+.coming-soon a:hover {
+  color: var(--blue-800);
 }
